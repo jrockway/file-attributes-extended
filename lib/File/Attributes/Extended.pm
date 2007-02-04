@@ -10,9 +10,9 @@ sub priority { 6 };
 sub applicable {
     my $self = shift;
     my $file = shift;
-
-    my $result = listfattr($file);
-    return if !defined $result && $!; # can't use
+    
+    eval { $self->get($file, 'perltest') };
+    return if $@; # can't use
     return 1; # can use
 }
 
@@ -20,7 +20,6 @@ sub get {
     my $self = shift;
     my $file = shift;
     my $attr = shift;
-    
     # make warnings fatal
     local $SIG{__WARN__} = sub { die "$_[0] ($!)" };
     return getfattr($file, $attr);
@@ -41,7 +40,8 @@ sub set {
 sub list {
     my $self = shift;
     my $file = shift;
-
+    
+    local $!;
     my @result = listfattr($file);
     die "Error listing attributes: $!" if !@result && $!;
     return @result;

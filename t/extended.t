@@ -2,7 +2,7 @@
 # simple.t 
 # Copyright (c) 2006 Jonathan Rockway <jrockway@cpan.org>
 
-use Test::More tests => 9;
+use Test::More;
 use File::Attributes::Extended;
 
 use Directory::Scratch;
@@ -10,10 +10,14 @@ use Directory::Scratch;
 my  $tmp = Directory::Scratch->new;
 my $FILE = $tmp->touch('file');
 
-ok(-e $FILE);
-
 my $extended = File::Attributes::Extended->new;
+
+plan 'skip_all', "Filesystem doesn't support xattrs" 
+  if !$extended->applicable($FILE);
+plan tests => 8;
+
 ok($extended->isa('File::Attributes::Extended'));
+ok(-e $FILE);
 
 my @attrs = $extended->list($FILE);
 is_deeply([@attrs], [], 'clean start');

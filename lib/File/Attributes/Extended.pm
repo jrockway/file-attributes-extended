@@ -2,10 +2,68 @@ package File::Attributes::Extended;
 
 use warnings;
 use strict;
+use base 'File::Attributes::Base';
+use File::ExtAttr ':all';
+our $VERSION = '0.01';
 
+sub priority { 6 };
+sub applicable {
+    my $self = shift;
+    my $file = shift;
+
+    my $result = listfattr($file);
+    return if !defined $result && $!; # can't use
+    return 1; # can use
+}
+
+sub get {
+    my $self = shift;
+    my $file = shift;
+    my $attr = shift;
+    
+    # make warnings fatal
+    local $SIG{__WARN__} = sub { die "$_[0] ($!)" };
+    return getfattr($file, $attr);
+}
+
+sub set {
+    my $self = shift;
+    my $file = shift;
+    my $attr = shift;
+    my $value= shift;
+    
+    # make warnings fatal
+    local $SIG{__WARN__} = sub { die "$_[0] ($!)" };
+    setfattr($file, $attr, $value);
+    return 1;
+}
+
+sub list {
+    my $self = shift;
+    my $file = shift;
+
+    my @result = listfattr($file);
+    die "Error listing attributes: $!" if !@result && $!;
+    return @result;
+}
+
+sub unset {
+    my $self = shift;
+    my $file = shift;
+    my $attr = shift;
+    
+    # make warnings fatal
+    local $SIG{__WARN__} = sub { die "$_[0] ($!)" };
+
+    return delfattr($file, "$attr");
+}
+
+1;
+__END__
 =head1 NAME
 
-File::Attributes::Extended - The great new File::Attributes::Extended!
+File::Attributes::Extended - Access UNIX extended filesystem
+attributes with File::Attributes.
 
 =head1 VERSION
 
@@ -13,39 +71,40 @@ Version 0.01
 
 =cut
 
-our $VERSION = '0.01';
-
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+    use File::Attributes ':all';
+    set_attribute('filename', foo => 'bar');
+    print get_attribute('filename', 'foo'); # bar
 
-Perhaps a little code snippet.
+This module should not be used directly --
+L<File::Attributes|File::Attributes> will automatically use it when
+possible.
 
-    use File::Attributes::Extended;
-
-    my $foo = File::Attributes::Extended->new();
-    ...
-
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+If you're sure you don't want the C<File::Attributes> API, see
+L<File::ExtAttr>.
 
 =head1 FUNCTIONS
 
-=head2 function1
+This module implements all of the functions File::Attributes expects.
+See L<File::Attributes::Base> for more information.
 
-=cut
+=head2 get
 
-sub function1 {
-}
+=head2 set
 
-=head2 function2
+=head2 unset
 
-=cut
+=head2 list
 
-sub function2 {
-}
+=head2 applicable
+
+Applicable if the file's filesystem supports extended filesystem
+attributes.
+
+=head2 priority
+
+Priority 6 (medium)
 
 =head1 AUTHOR
 

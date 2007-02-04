@@ -14,7 +14,7 @@ my $extended = File::Attributes::Extended->new;
 
 plan 'skip_all', "Filesystem doesn't support xattrs" 
   if !$extended->applicable($FILE);
-plan tests => 8;
+plan tests => 9;
 
 ok($extended->isa('File::Attributes::Extended'));
 ok(-e $FILE);

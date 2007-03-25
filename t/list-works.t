@@ -20,5 +20,6 @@ is($fax->get($file, 'foo'), 'yes', 'foo set');
 is($fax->get($file, 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'), 'set', 'XXXX... set');
 
 my @set   = sort qw(foo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX);
-my @attrs = $fax->list('foo');
+my @attrs = sort $fax->list($file);
+
 is_deeply(\@set, \@attrs, 'list attributes that we just set');
